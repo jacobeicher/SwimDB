@@ -41,4 +41,10 @@ tr {
   text-align: center;
 }
 
-/*ENDtable*/
+/*END table*/
+
+input {
+  background-color: #999;
+  padding: 5px;
+  margin: 5px;
+}
