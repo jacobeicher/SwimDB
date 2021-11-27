@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Swim DB - Athletes</title>
+
+    <link rel="stylesheet" href="swimDB.css" />
+  </head>
+
+  <body>
+    <div class="topnav">
+      <a class="active" href="index.html">Athletes</a>
+      <a href="meet.html">Meets</a>
+      <a href="event.html">Events</a>
+      <a href="edit.html">Edit</a>
+    </div>
+
+    <form action="/" method="get">
+      <label for="swimmer-select">Choose a swimmer:</label>
+      <input
+        type="text"
+        name="fswimmer"
+        id="swimmer-Fname-select"
+        value="<%=fswimmer%>"
+      />
+      <input
+        type="text"
+        name="lswimmer"
+        id="swimmer-Lname-select"
+        value="<%=lswimmer%>"
+      />
+      <label for="sex-select">Choose Sex:</label>
+      <select name="sex" id="sex-select">
+        <% for (const option of sexOptions) { %>
+          <option
+            value="<%=option%>"
+            <%=option === sex ? 'selected="selected"' : ""%>
+          >
+            <%=option%>
+          </option>
+        <%}%>
+      </select>
+      <label for="team-select">Choose Team:</label>
+      <select name="team" id="team-select">
+        <% for (const option of teamOptions) { %>
+          <option
+            value="<%=option%>"
+            <%=option === team ? 'selected="selected"' : ""%>
+          >
+            <%=option%>
+          </option>
+        <% } %>
+      </select>
+
+      <label for="overUnder-select">Choose Team:</label>
+      <select name="overUnder" id="overUnder-select">
+        <% for (const option of teamOptions) { %>
+          <option
+            value="<%=option%>"
+            <%=option === overUnder ? 'selected="selected"' : ""%>
+          >
+            <%=option%>
+          </option>
+        <% } %>
+      </select>
+      <label for="age-select">Choose age:</label>
+      <input type="text" name="age" id="age-select" />
+      <button type="submit">Submit!</button>
+      <a href="/">Reset!</a>
+    </form>
+
+    <table id="Athletes" class="table">
+      <thead>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Team</th>
+        <th>Sex</th>
+        <th>Age</th>
+      </thead>
+      <tbody id="change">
+        <% for(const { first_name, last_name, sex, age, team_code } of athletes)
+        { %>
+        <tr>
+          <td><%= first_name %></td>
+          <td><%= last_name %></td>
+          <td><%= team_code %></td>
+          <td><%= sex %></td>
+          <td><%= age %></td>
+        </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </body>
+</html>
