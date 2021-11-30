@@ -17,6 +17,7 @@
     <a href="/">Athletes</a>
     <a href="/meets">Meets</a>
     <a class="active" href="/event">Events</a>
+    <a href="/results">Results</a>
     <a href="/edit">Edit</a>
   </div>
   <form action="/event" method="get">
@@ -67,26 +68,26 @@
   <table id="event" class="table">
     <thead>
       <th>Event Number</th>
-      <th>Distance</th>
       <th>Sex</th>
+      <th>Distance</th>
       <th>Stroke</th>
       <th>Relay</th>
       <th>Meet Name</th>
     </thead>
     <tbody id="change">
-      <% for(const { event_number, distance, sex, stroke, relay, meet_name } of event) { %>
+      <% for(const { event_number, distance, sex, stroke, relay, meet_name, stroke_name } of event) { %>
         <tr>
           <td>
             <%= event_number %>
           </td>
           <td>
-            <%= distance %>
-          </td>
-          <td>
             <%= sex %>
           </td>
           <td>
-            <%= stroke %>
+            <%= distance %>
+          </td>
+          <td>
+            <%= (stroke_name==="IM" && relay===true) ? "Medley" : stroke_name %>
           </td>
           <td>
             <%= relay===true ? "Yes" : "No" %>

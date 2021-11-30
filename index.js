@@ -18,7 +18,7 @@ client.connect();
 app.set("view engine", "ejs");
 
 
-
+//INDEX!!!!!!!!!!!!!!!!!!!
 app.get("/", async (req, res) => {
   let param = 1;
 
@@ -150,11 +150,12 @@ app.get("/meets", async (req, res) => {
   });
 });
 
+//EVENTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 app.get("/event", async (req, res) => {
   let param = 1;
 
-  const { event_number, distance, sex, stroke, relay, overUnder } = req.query;
+  const { event_number, distance, sex, stroke, relay, overUnder, stroke_name } = req.query;
 
   const whereClauses = [];
   const params = [];
@@ -210,11 +211,11 @@ app.get("/event", async (req, res) => {
     }
   }
 
-  whereClauses.push("meet=meet.meet_id");
+  whereClauses.push("meet=meet.meet_id AND event.stroke=stroke.stroke_id");
 
   const { rows } = await client.query(
     `
-    SELECT event_number, distance, sex, stroke, relay, meet_name FROM event, meet  
+    SELECT event_number, distance, sex, stroke, relay, meet_name, stroke_name FROM event, meet, stroke  
     ${whereClauses.length > 0 ? "WHERE " : ""} ${whereClauses.join(" AND ")} order By event_number 
   `,
     params
@@ -228,6 +229,114 @@ app.get("/event", async (req, res) => {
     stroke,
     relay,
     overUnder,
+    stroke_name,
+    relayOptions: ["any", "Yes", "No"],
+    sexOptions: ["any", "male", "female"],
+    overUnderOptions: ["=", "<", "<=", ">", ">="]
+
+  });
+});
+
+//RESULTS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+app.get("/results", async (req, res) => {
+  let param = 1;
+
+  const { event_number, fswimmer, lswimmer, distance, sex, stroke, relay, overUnder, stroke_name, place, time } = req.query;
+
+  const whereClauses = [];
+  const params = [];
+
+  if (event_number !== undefined && event_number.trim().length > 0) {
+    whereClauses.push(`event_number=$${param++}`);
+    params.push(event_number);
+  }
+
+  if (fswimmer !== undefined && fswimmer.trim().length > 0) {
+    whereClauses.push(`LOWER(first_name) LIKE '%' || $${param++} || '%' `);
+    params.push(fswimmer.toLowerCase());
+  }
+
+  if (lswimmer !== undefined && lswimmer.trim().length > 0) {
+    whereClauses.push(`LOWER(last_name) LIKE '%' || $${param++} || '%' `);
+    params.push(lswimmer.toLowerCase());
+  }
+
+  if (distance !== undefined && distance.trim().length > 0) {
+    if (overUnder === "=") {
+      whereClauses.push(`distance=$${param++}`);
+      params.push(distance);
+    }
+    else if (overUnder === "<") {
+      whereClauses.push(`distance<$${param++}`);
+      params.push(distance);
+    }
+    else if (overUnder === ">") {
+      whereClauses.push(`distance>$${param++}`);
+      params.push(distance);
+    }
+    else if (overUnder === "<=") {
+      whereClauses.push(`distance<=$${param++}`);
+      params.push(distance);
+    }
+    else if (overUnder === ">=") {
+      whereClauses.push(`distance>=$${param++}`);
+      params.push(distance);
+    }
+  }
+
+  if (sex !== undefined && sex !== "any") {
+    if (sex === "male") {
+      whereClauses.push(`athletes.sex='M'`);
+    }
+    if (sex === "female") {
+      whereClauses.push(`athletes.sex='F'`);
+    }
+  }
+
+  if (stroke !== undefined && stroke.trim().length > 0) {
+    whereClauses.push(`stroke=$${param++}`);
+    params.push(stroke);
+  }
+
+  if (relay !== undefined && relay !== "any") {
+    if (relay === "Yes") {
+      whereClauses.push(`relay='T'`);
+    }
+    if (relay === "No") {
+      whereClauses.push(`relay='F'`);
+    }
+  }
+
+  whereClauses.push("meet=meet.meet_id");
+  whereClauses.push("event.stroke=stroke.stroke_id ");
+  whereClauses.push("results.athlete=athletes.athlete_id");
+  whereClauses.push("stroke.stroke_id=event.stroke");
+  whereClauses.push("results.event_id=event.event_id");
+
+
+
+  const { rows } = await client.query(
+    `
+    SELECT event_number, first_name, last_name, distance, athletes.sex, stroke, relay, meet_name, stroke_name, place, time FROM event, meet, athletes, results, stroke  
+    ${whereClauses.length > 0 ? "WHERE " : ""} ${whereClauses.join(" AND ")} order By event_number 
+  `,
+    params
+  );
+
+  res.render("pages/results", {
+    event: rows,
+    event_number,
+    fswimmer,
+    lswimmer,
+    distance,
+    sex,
+    stroke,
+    relay,
+    overUnder,
+    stroke_name,
+    place,
+    time,
     relayOptions: ["any", "Yes", "No"],
     sexOptions: ["any", "male", "female"],
     overUnderOptions: ["=", "<", "<=", ">", ">="]
