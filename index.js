@@ -17,10 +17,12 @@ client.connect();
 
 app.set("view engine", "ejs");
 
+
+
 app.get("/", async (req, res) => {
   let param = 1;
 
-  const { fswimmer, lswimmer, sex, age, team } = req.query;
+  const { fswimmer, lswimmer, sex, overUnder, age, team } = req.query;
 
   const whereClauses = [];
   const params = [];
@@ -50,8 +52,26 @@ app.get("/", async (req, res) => {
   }
 
   if (age !== undefined && age.trim().length > 0) {
-    whereClauses.push(`age=$${param++}`);
-    params.push(age);
+    if (overUnder === "=") {
+      whereClauses.push(`age=$${param++}`);
+      params.push(age);
+    }
+    else if (overUnder === "<") {
+      whereClauses.push(`age<$${param++}`);
+      params.push(age);
+    }
+    else if (overUnder === ">") {
+      whereClauses.push(`age>$${param++}`);
+      params.push(age);
+    }
+    else if (overUnder === "<=") {
+      whereClauses.push(`age<=$${param++}`);
+      params.push(age);
+    }
+    else if (overUnder === ">=") {
+      whereClauses.push(`age>=$${param++}`);
+      params.push(age);
+    }
   }
 
   const { rows } = await client.query(
@@ -68,9 +88,12 @@ app.get("/", async (req, res) => {
     lswimmer,
     sex,
     team,
+    overUnder,
     age,
     sexOptions: ["any", "male", "female"],
     teamOptions: ["any", "OU", "Other"],
+    overUnderOptions: ["=", "<", "<=", ">", ">="]
+
   });
 });
 
@@ -85,29 +108,163 @@ app.listen(3000, () => {
   console.log(`App running on http://localhost:${port}`);
 });
 
-function fillTable(rows, fields, table) {
-  for (var i = 0; i < rows.length; i++) {
-    tr = dataTable.insertRow(-1);
-    for (var j = 0; j < fields.length; j++) {
-      cell = tr.insertCell(-1);
-      cell.innerHTML = rows[i][fields[j]];
+//MEETS
+app.get("/meets", async (req, res) => {
+  let param = 1;
+
+  const { meet_name, meet_location, meet_date } = req.query;
+
+  const whereClauses = [];
+  const params = [];
+
+  if (meet_name !== undefined && meet_name.trim().length > 0) {
+    whereClauses.push(`LOWER(meet_name) LIKE '%' || $${param++} || '%' `);
+    params.push(meet_name.toLowerCase());
+  }
+
+  if (meet_location !== undefined && meet_location.trim().length > 0) {
+    whereClauses.push(`LOWER(meet_Location) LIKE '%' || $${param++} || '%' `);
+    params.push(meet_location.toLowerCase());
+  }
+
+
+  if (meet_date !== undefined && meet_date.trim().length > 0) {
+    whereClauses.push(`meet_date LIKE '%' || $${param++} || '%' `);
+    params.push(meet_date);
+  }
+
+
+  const { rows } = await client.query(
+    `
+    SELECT meet_name, meet_location, meet_date FROM MEET
+    ${whereClauses.length > 0 ? "WHERE " : ""} ${whereClauses.join(" AND ")}
+  `,
+    params
+  );
+
+  res.render("pages/meet", {
+    meet: rows,
+    meet_name,
+    meet_location,
+    meet_date
+  });
+});
+
+
+app.get("/event", async (req, res) => {
+  let param = 1;
+
+  const { event_number, distance, sex, stroke, relay, overUnder } = req.query;
+
+  const whereClauses = [];
+  const params = [];
+
+  if (event_number !== undefined && event_number.trim().length > 0) {
+    whereClauses.push(`event_number=$${param++}`);
+    params.push(event_number);
+  }
+
+  if (distance !== undefined && distance.trim().length > 0) {
+    if (overUnder === "=") {
+      whereClauses.push(`distance=$${param++}`);
+      params.push(distance);
+    }
+    else if (overUnder === "<") {
+      whereClauses.push(`distance<$${param++}`);
+      params.push(distance);
+    }
+    else if (overUnder === ">") {
+      whereClauses.push(`distance>$${param++}`);
+      params.push(distance);
+    }
+    else if (overUnder === "<=") {
+      whereClauses.push(`distance<=$${param++}`);
+      params.push(distance);
+    }
+    else if (overUnder === ">=") {
+      whereClauses.push(`distance>=$${param++}`);
+      params.push(distance);
     }
   }
-}
 
-function test() {
-  client
-    .query("SELECT NOW() as now")
-    .then((res) => console.log(res.rows[0]))
-    .catch((e) => console.error(e.stack));
-}
+  if (sex !== undefined && sex !== "any") {
+    if (sex === "male") {
+      whereClauses.push(`sex='M'`);
+    }
+    if (sex === "female") {
+      whereClauses.push(`sex='F'`);
+    }
+  }
 
-function submitAthlete(Fname, Lname, sex, team, age) {
-  console.log("%s, %s, %s, $s, %s", Fname, Lname, sex, team, age);
-  dataTable = document.getElementById("Athletes");
-  document.getElementById("change").innerHTML = "";
-  fields = ["first_name", "last_name", "team_code", "sex", "age"];
-  //rows = sqlQueryResult
-  fillTable(rows, fields, dataTable);
-  console.log(dataTable);
-}
+  if (stroke !== undefined && stroke.trim().length > 0) {
+    whereClauses.push(`stroke=$${param++}`);
+    params.push(stroke);
+  }
+
+  if (relay !== undefined && relay !== "any") {
+    if (relay === "Yes") {
+      whereClauses.push(`relay='T'`);
+    }
+    if (relay === "No") {
+      whereClauses.push(`relay='F'`);
+    }
+  }
+
+  whereClauses.push("meet=meet.meet_id");
+
+  const { rows } = await client.query(
+    `
+    SELECT event_number, distance, sex, stroke, relay, meet_name FROM event, meet  
+    ${whereClauses.length > 0 ? "WHERE " : ""} ${whereClauses.join(" AND ")} order By event_number 
+  `,
+    params
+  );
+
+  res.render("pages/event", {
+    event: rows,
+    event_number,
+    distance,
+    sex,
+    stroke,
+    relay,
+    overUnder,
+    relayOptions: ["any", "Yes", "No"],
+    sexOptions: ["any", "male", "female"],
+    overUnderOptions: ["=", "<", "<=", ">", ">="]
+
+  });
+});
+
+
+app.get('/edit', (req, res) => {
+  res.render('pages/edit', {});
+});
+
+// function fillTable(rows, fields, table) {
+//   for (var i = 0; i < rows.length; i++) {
+//     tr = dataTable.insertRow(-1);
+//     for (var j = 0; j < fields.length; j++) {
+//       cell = tr.insertCell(-1);
+//       cell.innerHTML = rows[i][fields[j]];
+//     }
+//   }
+// }
+
+// function test() {
+//   client
+//     .query("SELECT NOW() as now")
+//     .then((res) => console.log(res.rows[0]))
+//     .catch((e) => console.error(e.stack));
+// }
+
+// function submitAthlete(Fname, Lname, sex, team, age) {
+//   console.log("%s, %s, %s, $s, %s", Fname, Lname, sex, team, age);
+//   dataTable = document.getElementById("Athletes");
+//   document.getElementById("change").innerHTML = "";
+//   fields = ["first_name", "last_name", "team_code", "sex", "age"];
+//   //rows = sqlQueryResult
+//   fillTable(rows, fields, dataTable);
+//   console.log(dataTable);
+// }
+
+

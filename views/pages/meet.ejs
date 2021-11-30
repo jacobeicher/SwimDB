@@ -1,0 +1,66 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Swim DB - Meets</title>
+
+  <link rel="stylesheet" href="swimDB.css">
+
+</head>
+
+<body>
+  <div class="topnav">
+    <a href="/">Athletes</a>
+    <a class="active" href="/meets">Meets</a>
+    <a href="/event">Events</a>
+    <a href="/edit">Edit</a>
+  </div>
+  <form action="/meets" method="get">
+
+    <label for="meet-name-select">Meet Name:</label>
+    <input type="text" name="meet_name" id="meet-name-select" value="<%=meet_name%>" />
+
+    <label for="meet-location-select">Meet Location:</label>
+    <input type="text" name="meet_location" id="meet-location-select" value="<%=meet_location%>" />
+
+    <label for="meet-date-select">Meet Date:</label>
+    <input type="date" name="meet_date" id="meet-date-select" value="<%=meet_date%>" />
+
+
+    <button type="submit">Submit!</button>
+    <a href="/meets">Reset!</a>
+  </form>
+
+  <table id="meet" class="table">
+    <thead>
+      <th>Name</th>
+      <th>Location</th>
+      <th>Date</th>
+    </thead>
+    <tbody id="change">
+      <% for(const { meet_name, meet_location, meet_date } of meet) { %>
+        <tr>
+          <td>
+            <%= meet_name %>
+          </td>
+          <td>
+            <%= meet_location %>
+          </td>
+          <td>
+            <%= meet_date %>
+          </td>
+        </tr>
+        <% } %>
+    </tbody>
+  </table>
+
+
+
+  <script src="swimDB.css"></script>
+</body>
+
+</html>

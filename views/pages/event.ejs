@@ -1,0 +1,107 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Swim DB - Events</title>
+
+  <link rel="stylesheet" href="swimDB.css">
+
+</head>
+
+<body>
+  <div class="topnav">
+    <a href="/">Athletes</a>
+    <a href="/meets">Meets</a>
+    <a class="active" href="/event">Events</a>
+    <a href="/edit">Edit</a>
+  </div>
+  <form action="/event" method="get">
+
+    <label for="event-number-select">Event Number:</label>
+    <input type="text" name="event_number" id="event-number-select" value="<%=event_number%>" />
+
+    <label for="distance-select">Distance:</label>
+    <select name="overUnder" id="overUnder-select">
+      <% for (const option of overUnderOptions) { %>
+        <option value="<%=option%>" <%=option===overUnder ? 'selected="selected"' : "" %>>
+          <%=option%>
+        </option>
+        <% } %>
+    </select>
+    <input type="text" name="distance" id="distance-select" value="<%=distance%>" />
+
+    <label for="sex-select">Choose Sex:</label>
+    <select name="sex" id="sex-select">
+      <% for (const option of sexOptions) { %>
+        <option value="<%=option%>" <%=option===sex ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <%}%>
+    </select>
+
+
+    <label for="stroke-select">Stroke:</label>
+    <input type="text" name="stroke" id="stroke-select" value="<%=stroke%>" />
+
+    <label for="relay-select">Is Relay:</label>
+
+    <select name="relay" id="relay-select">
+      <% for (const option of relayOptions) { %>
+        <option value="<%=option%>" <%=option===relay ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <%}%>
+    </select>
+
+
+    <button type="submit">Submit!</button>
+    <a href="/event">Reset!</a>
+  </form>
+
+  <table id="event" class="table">
+    <thead>
+      <th>Event Number</th>
+      <th>Distance</th>
+      <th>Sex</th>
+      <th>Stroke</th>
+      <th>Relay</th>
+      <th>Meet Name</th>
+    </thead>
+    <tbody id="change">
+      <% for(const { event_number, distance, sex, stroke, relay, meet_name } of event) { %>
+        <tr>
+          <td>
+            <%= event_number %>
+          </td>
+          <td>
+            <%= distance %>
+          </td>
+          <td>
+            <%= sex %>
+          </td>
+          <td>
+            <%= stroke %>
+          </td>
+          <td>
+            <%= relay===true ? "Yes" : "No" %>
+          </td>
+          <td>
+            <%= meet_name %>
+          </td>
+        </tr>
+        <% } %>
+    </tbody>
+  </table>
+
+
+
+  <script src="swimDB.css"></script>
+</body>
+
+</html>
