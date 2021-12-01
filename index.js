@@ -394,6 +394,7 @@ app.get("/results", async (req, res) => {
   });
 });
 
+//edit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 app.get("/edit", async (req, res) => {
   let param = 1;
 
@@ -402,36 +403,34 @@ app.get("/edit", async (req, res) => {
   const values = [];
   const params = [];
 
-  if (fswimmer !== undefined && fswimmer.trim().length > 0) {
+  if (team !== undefined) {
     values.push(`$${param++}`);
-    params.push(fswimmer);
+    params.push(team);
+  }
+
+  if (fswimmer !== undefined && fswimmer.trim().length > 0) {
+    values.push(`'$${param++}'`);
+    params.push("'" + fswimmer + "'");
   }
 
   if (lswimmer !== undefined && lswimmer.trim().length > 0) {
-    values.push(`$${param++}`);
-    params.push(lswimmer);
+    values.push(`'$${param++}'`);
+    params.push("'" + lswimmer + "'");
   }
 
   if (sex !== undefined) {
     if (sex === "male") {
-      values.push(`${param++}`);
-      values.push(`M`);
+      values.push(`$${param++}`);
+      params.push(`'M'`);
     }
     if (sex === "female") {
-      values.push(`${param++}`);
-      values.push(`F`);
+      values.push(`$${param++}`);
+      params.push(`'F'`);
     }
-  }
-
-  if (team !== undefined) {
-    console.log(`Team: ${team}`);
-    console.log(`param: ${param}`);
-    values.push(1);
-    params.push(team);
   }
 
   if (age !== undefined && age.trim().length > 0) {
-    values.push(`${param++}`);
+    values.push(`$${param++}`);
     params.push(age);
   }
 
@@ -440,13 +439,8 @@ app.get("/edit", async (req, res) => {
   const { teams } = await client.query(`SELECT * FROM TEAM`);
 
   if (param > 1) {
-    params.forEach((x) => {
-      console.log(x);
-    });
-    console.log(`INSERT INTO ATHLETES VALUES(${values.join(", ")})`);
     const { rows } = await client.query(
-      `INSERT INTO ATHLETES VALUES(${values.join(", ")})`,
-      params
+      `INSERT INTO ATHLETES (team, first_name, last_name, sex, age) VALUES (${params.join(", ")});`
     );
   }
 
