@@ -2,6 +2,8 @@ const express = require("express");
 const pg = require("pg");
 const app = express();
 const port = 3000;
+const json2csv = require('json2csv');
+
 
 app.use(express.static(__dirname));
 
@@ -82,6 +84,8 @@ app.get("/", async (req, res) => {
     params
   );
 
+
+
   res.render("pages/index", {
     athletes: rows,
     fswimmer,
@@ -97,16 +101,13 @@ app.get("/", async (req, res) => {
   });
 });
 
-// router.get("/", (req, res) => {
-//   res.sendFile("index.html");
-//   fields = ["first_name", "last_name", "team_code", "sex", "age"];
-// });
-
-// app.use("/", router);
 
 app.listen(3000, () => {
   console.log(`App running on http://localhost:${port}`);
 });
+
+
+
 
 //MEETS
 app.get("/meets", async (req, res) => {
@@ -159,6 +160,7 @@ app.get("/event", async (req, res) => {
 
   const whereClauses = [];
   const params = [];
+
 
   if (event_number !== undefined && event_number.trim().length > 0) {
     whereClauses.push(`event_number=$${param++}`);
@@ -242,10 +244,13 @@ app.get("/event", async (req, res) => {
 app.get("/results", async (req, res) => {
   let param = 1;
 
-  const { event_number, fswimmer, lswimmer, distance, sex, stroke, relay, overUnder, stroke_name, place, time } = req.query;
+  const { event_number, fswimmer, lswimmer, distance, sex, stroke, relay, overUnder, stroke_name, place, time, sort, sort_direction
+  } = req.query;
 
   const whereClauses = [];
   const params = [];
+  let sortBy = "event_number";
+  let sortDir = "";
 
   if (event_number !== undefined && event_number.trim().length > 0) {
     whereClauses.push(`event_number=$${param++}`);
@@ -294,9 +299,18 @@ app.get("/results", async (req, res) => {
     }
   }
 
-  if (stroke !== undefined && stroke.trim().length > 0) {
-    whereClauses.push(`stroke=$${param++}`);
-    params.push(stroke);
+  if (stroke_name !== undefined && stroke_name.trim().length > 0) {
+
+    if ("medley".indexOf((stroke_name).toLowerCase()) >= 0) {
+      whereClauses.push(`stroke_name='IM' AND relay='T'`)
+
+    }
+    else {
+      whereClauses.push(`LOWER(stroke_name) LIKE '%' || $${param++} || '%' `);
+      params.push(stroke_name.toLowerCase());
+    }
+
+
   }
 
   if (relay !== undefined && relay !== "any") {
@@ -308,6 +322,34 @@ app.get("/results", async (req, res) => {
     }
   }
 
+  if (sort !== undefined) {
+    if (sort === "Event Number") {
+      sortBy = "event_number";
+    }
+    else if (sort === "Distance") {
+      sortBy = "distance";
+    }
+    else if (sort === "Stroke") {
+      sortBy = "stroke";
+    }
+    else if (sort === "Time") {
+      sortBy = "time";
+    }
+    else if (sort === "") {
+      sortBy = "";
+    }
+  }
+
+  if (sort_direction !== undefined) {
+    if (sort_direction === "Ascending") {
+      sortDir = "";
+    }
+    if (sort_direction === "Descending") {
+      sortDir = "DESC";
+    }
+  }
+
+
   whereClauses.push("meet=meet.meet_id");
   whereClauses.push("event.stroke=stroke.stroke_id ");
   whereClauses.push("results.athlete=athletes.athlete_id");
@@ -317,12 +359,41 @@ app.get("/results", async (req, res) => {
 
 
   const { rows } = await client.query(
-    `
-    SELECT event_number, first_name, last_name, distance, athletes.sex, stroke, relay, meet_name, stroke_name, place, time FROM event, meet, athletes, results, stroke  
-    ${whereClauses.length > 0 ? "WHERE " : ""} ${whereClauses.join(" AND ")} order By event_number 
-  `,
+    `SELECT event_number, first_name, last_name, distance, athletes.sex, stroke, relay, meet_name, stroke_name, place, time::varchar(255) FROM event, meet, athletes, results, stroke  
+    ${whereClauses.length > 0 ? "WHERE " : ""} ${whereClauses.join(" AND ")} order By  ${sortBy} ${sortDir}`,
     params
   );
+
+
+  rows.forEach(element => {
+    let mins = Math.floor(element["time"] / 6000);
+    let seconds = Math.floor((element["time"] - (6000 * mins)) / 100);
+    if (seconds < 10) {
+      seconds = "0" + seconds.toString();
+    }
+    let milliseconds = element["time"] % 100;
+    if (milliseconds < 10)
+      milliseconds = "0" + milliseconds.toString();
+
+    // console.log(element["time"].toString());
+    // console.log("mins: " + mins.toString())
+    // console.log("seconds: " + seconds.toString());
+    // console.log("milliseconds: " + milliseconds.toString());
+    var newTime;
+    // console.log(`mins: ${mins}`)
+    if (mins != '0') {
+      newTime = mins + ":";
+    } else {
+      newTime = "";
+    }
+    newTime += seconds + ".";
+    newTime += milliseconds;
+    // console.log(`newTime: ${newTime}`);
+    element["time"] = newTime;
+  });
+
+
+
 
   res.render("pages/results", {
     event: rows,
@@ -337,43 +408,70 @@ app.get("/results", async (req, res) => {
     stroke_name,
     place,
     time,
+    sort,
+    sort_direction,
     relayOptions: ["any", "Yes", "No"],
     sexOptions: ["any", "male", "female"],
-    overUnderOptions: ["=", "<", "<=", ">", ">="]
-
+    overUnderOptions: ["=", "<", "<=", ">", ">="],
+    sortOptions: ["Event Number", "Distance", "Stroke", "Time"],
+    sortDirectionOptions: ["Ascending", "Descending"]
   });
 });
 
+app.get("/edit", async (req, res) => {
+  let param = 1;
 
-app.get('/edit', (req, res) => {
-  res.render('pages/edit', {});
+  const { fswimmer, lswimmer, sex, age, team } = req.query;
+
+  const values = [];
+  const params = [];
+
+  if (fswimmer !== undefined && fswimmer.trim().length > 0) {
+    values.push(`$${param++}`);
+    params.push(fswimmer);
+  }
+
+  if (lswimmer !== undefined && lswimmer.trim().length > 0) {
+    values.push(`$${param++}`);
+    params.push(lswimmer);
+  }
+
+  if (sex !== undefined) {
+    if (sex === "male") {
+      values.push(`${param++}`);
+      values.push(`M`);
+    }
+    if (sex === "female") {
+      values.push(`${param++}`);
+      values.push(`F`);
+    }
+  }
+
+  if (team !== undefined) {
+    values.push(`${param++}`);
+    params.push(team);
+  }
+
+  if (age !== undefined && age.trim().length > 0) {
+    values.push(`${param++}`);
+    params.push(age);
+  }
+
+  const { rows } = await client.query(
+    `INSERT INTO ATHETES VALUES(${values.join(", ")})`, params);
+
+
+  res.render("pages/edit", {
+    athletes: rows,
+    fswimmer,
+    lswimmer,
+    sex,
+    team,
+    age,
+    sexOptions: ["male", "female"],
+    teamOptions: ["SCOU"],
+
+  });
 });
-
-// function fillTable(rows, fields, table) {
-//   for (var i = 0; i < rows.length; i++) {
-//     tr = dataTable.insertRow(-1);
-//     for (var j = 0; j < fields.length; j++) {
-//       cell = tr.insertCell(-1);
-//       cell.innerHTML = rows[i][fields[j]];
-//     }
-//   }
-// }
-
-// function test() {
-//   client
-//     .query("SELECT NOW() as now")
-//     .then((res) => console.log(res.rows[0]))
-//     .catch((e) => console.error(e.stack));
-// }
-
-// function submitAthlete(Fname, Lname, sex, team, age) {
-//   console.log("%s, %s, %s, $s, %s", Fname, Lname, sex, team, age);
-//   dataTable = document.getElementById("Athletes");
-//   document.getElementById("change").innerHTML = "";
-//   fields = ["first_name", "last_name", "team_code", "sex", "age"];
-//   //rows = sqlQueryResult
-//   fillTable(rows, fields, dataTable);
-//   console.log(dataTable);
-// }
 
 

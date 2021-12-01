@@ -20,11 +20,38 @@
     <a href="/event">Events</a>
     <a href="/results">Results</a>
     <a class="active" href="/edit">Edit</a>
-
   </div>
-  <h1>I can't know how to hear anymore about tables!</h1>
 
-  <script src="swimDB.css"></script>
+  <p>Add Athlete</p>
+  <form action="/edit" method="get">
+    <label for="swimmer-select">Enter swimmer name:</label>:</label>
+    <input type="text" name="fswimmer" id="swimmer-Fname-select" value="<%=fswimmer%>" />
+    <input type="text" name="lswimmer" id="swimmer-Lname-select" value="<%=lswimmer%>" />
+    <label for="sex-select">Select Sex:</label>
+    <select name="sex" id="sex-select">
+      <% for (const option of sexOptions) { %>
+        <option value="<%=option%>" <%=option===sex ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <%}%>
+    </select>
+    <label for="team-select">Select Team:</label>
+    <select name="team" id="team-select">
+      <% for (const option of teamOptions) { %>
+        <option value="<%=option%>" <%=option===team ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <% } %>
+    </select>
+
+
+    <label for="age-select">Select Age:</label>
+    <input type="text" name="age" id="age-select" value="<%=age%>" />
+    <button type="submit">Submit!</button>
+
+    <script src="swimDB.css"></script>
 </body>
 
 </html>

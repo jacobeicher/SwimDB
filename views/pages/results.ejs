@@ -51,10 +51,9 @@
 
 
         <label for="stroke-select">Stroke:</label>
-        <input type="text" name="stroke" id="stroke-select" value="<%=stroke%>" />
+        <input type="text" name="stroke_name" id="stroke-select" value="<%=stroke_name%>" />
 
         <label for="relay-select">Is Relay:</label>
-
         <select name="relay" id="relay-select">
             <% for (const option of relayOptions) { %>
                 <option value="<%=option%>" <%=option===relay ? 'selected="selected"' : "" %>
@@ -63,7 +62,26 @@
                 </option>
                 <%}%>
         </select>
+        <br>
+        <label for="sort-select">Sort By:</label>
+        <select name="sort" id="sort-select">
+            <% for (const option of sortOptions) { %>
+                <option value="<%=option%>" <%=option===sort ? 'selected="selected"' : "" %>
+                    >
+                    <%=option%>
+                </option>
+                <%}%>
+        </select>
 
+        <label for="sort-direction-select">Sort By:</label>
+        <select name="sort_direction" id="sort-direction-select">
+            <% for (const option of sortDirectionOptions) { %>
+                <option value="<%=option%>" <%=option===sort_direction ? 'selected="selected"' : "" %>
+                    >
+                    <%=option%>
+                </option>
+                <%}%>
+        </select>
 
         <button type="submit">Submit!</button>
         <a href="/results">Reset!</a>
