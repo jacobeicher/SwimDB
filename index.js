@@ -96,7 +96,7 @@ app.listen(3000, () => {
   console.log(`App running on http://localhost:${port}`);
 });
 
-//MEETS
+//MEET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 app.get("/meets", async (req, res) => {
   let param = 1;
 
@@ -116,9 +116,10 @@ app.get("/meets", async (req, res) => {
   }
 
   if (meet_date !== undefined && meet_date.trim().length > 0) {
-    whereClauses.push(`meet_date LIKE '%' || $${param++} || '%' `);
+    whereClauses.push(`meet_date=$${param++}`);
     params.push(meet_date);
   }
+
 
   const { rows } = await client.query(
     `
@@ -354,10 +355,6 @@ app.get("/results", async (req, res) => {
     let milliseconds = element["time"] % 100;
     if (milliseconds < 10) milliseconds = "0" + milliseconds.toString();
 
-    // console.log(element["time"].toString());
-    // console.log("mins: " + mins.toString())
-    // console.log("seconds: " + seconds.toString());
-    // console.log("milliseconds: " + milliseconds.toString());
     var newTime;
     // console.log(`mins: ${mins}`)
     if (mins != "0") {
@@ -396,62 +393,119 @@ app.get("/results", async (req, res) => {
 
 //edit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 app.get("/edit", async (req, res) => {
-  let param = 1;
 
-  const { fswimmer, lswimmer, sex, age, team } = req.query;
+  const { fswimmer_athlete, lswimmer_athlete, sex_athlete, age_athlete, team_athlete, addRemoveAthlete, addRemoveMeet, meet_date, meet_location, meet_name } = req.query;
 
-  const values = [];
-  const params = [];
+  const athleteValues = [];
+  const athleteParams = [];
+  const meetValues = [];
+  const meetParams = [];
 
-  if (team !== undefined) {
-    values.push(`$${param++}`);
-    params.push(team);
+  if (team_athlete !== undefined && !isNaN(team_athlete)) {
+    athleteValues.push(`team=${team_athlete}`);
+    athleteParams.push(team_athlete);
   }
 
-  if (fswimmer !== undefined && fswimmer.trim().length > 0) {
-    values.push(`'$${param++}'`);
-    params.push("'" + fswimmer + "'");
+  if (fswimmer_athlete !== undefined && fswimmer_athlete.trim().length > 0) {
+    athleteValues.push(`first_name='${fswimmer_athlete}'`);
+    athleteParams.push("'" + fswimmer_athlete + "'");
   }
 
-  if (lswimmer !== undefined && lswimmer.trim().length > 0) {
-    values.push(`'$${param++}'`);
-    params.push("'" + lswimmer + "'");
+  if (lswimmer_athlete !== undefined && lswimmer_athlete.trim().length > 0) {
+    athleteValues.push(`last_name='${lswimmer_athlete}'`);
+    athleteParams.push("'" + lswimmer_athlete + "'");
   }
 
-  if (sex !== undefined) {
-    if (sex === "male") {
-      values.push(`$${param++}`);
-      params.push(`'M'`);
+  if (sex_athlete !== undefined) {
+    if (sex_athlete === "male") {
+      athleteValues.push(`sex='M'`);
+      athleteParams.push(`'M'`);
     }
-    if (sex === "female") {
-      values.push(`$${param++}`);
-      params.push(`'F'`);
+    if (sex_athlete === "female") {
+      athleteValues.push(`sex='F'`);
+      athleteParams.push(`'F'`);
     }
   }
 
-  if (age !== undefined && age.trim().length > 0) {
-    values.push(`$${param++}`);
-    params.push(age);
+  if (age_athlete !== undefined && age_athlete.trim().length > 0 && isNaN(age_athlete) == false) {
+    athleteValues.push(`age=${age_athlete}`);
+    athleteParams.push(age_athlete);
   }
 
   const { athletes } = await client.query(`SELECT * FROM ATHLETES`);
 
   const { teams } = await client.query(`SELECT * FROM TEAM`);
 
-  if (param > 1) {
+  console.log(addRemoveAthlete);
+  console.log(team_athlete);
+  console.log(athleteParams.length);
+  console.log(athleteParams);
+  if (addRemoveAthlete === "Add" && athleteParams.length == 5) {
+
     const { rows } = await client.query(
-      `INSERT INTO ATHLETES (team, first_name, last_name, sex, age) VALUES (${params.join(", ")});`
+      `INSERT INTO ATHLETES (team, first_name, last_name, sex, age) VALUES (${athleteParams.join(", ")}) RETURNING *;`
     );
+    if (rows) {
+      res.redirect(`/?fswimmer=${fswimmer_athlete}&lswimmer=${lswimmer_athlete}&sex=${sex_athlete}`);
+    }
+  } else if (addRemoveAthlete === "Remove" && athleteValues.length > 0) {
+    const { rows } = await client.query(`DELETE FROM ATHLETES WHERE (${athleteValues.join(" AND ")});`);
+    if (rows) {
+      res.redirect(`/`);
+    }
   }
+
+
+
+  if (meet_name !== undefined && meet_name.trim().length > 0) {
+    meetValues.push(`meet_name='${meet_name}'`)
+    meetParams.push("'" + meet_name.toLowerCase() + "'");
+  }
+
+  if (meet_location !== undefined && meet_location.trim().length > 0) {
+    meetValues.push(`meet_location='${meet_location}'`)
+    meetParams.push("'" + meet_location.toLowerCase() + "'");
+  }
+
+  if (meet_date !== undefined && meet_date.trim().length > 0) {
+    meetValues.push(`meet_date='${meet_date}'`)
+    meetParams.push("'" + meet_date + "'");
+  }
+
+  if (addRemoveMeet === 'Add' && meetParams.length == 3) {
+    console.log(`INSERT INTO MEET (meet_name, meet_location, meet_date) VALUES (${meetParams.join(", ")}) RETURNING *;`);
+    const { rows } = await client.query(
+      `INSERT INTO MEET (meet_name, meet_location, meet_date) VALUES (${meetParams.join(", ")}) RETURNING *;`
+    );
+    if (rows) {
+      res.redirect(`/meets?meet_name=${meet_name}&meet_location=${meet_location}&meet_date=${meet_date}`);
+    }
+  }
+  else if (addRemoveMeet === "Remove" && meetValues.length > 0) {
+    console.log(`DELETE FROM MEET WHERE (${meetValues.join(" AND ")});`);
+    const { rows } = await client.query(`DELETE FROM MEET WHERE (${meetValues.join(" AND ")});`);
+    console.log(rows)
+    if (rows) {
+      res.redirect(`/meets`)
+    }
+  }
+
+
 
   res.render("pages/edit", {
     athletes: athletes,
-    fswimmer,
-    lswimmer,
-    sex,
-    team: teams,
-    age,
+    fswimmer_athlete,
+    lswimmer_athlete,
+    sex_athlete,
+    team_athlete,
+    age_athlete,
+    addRemoveAthlete,
+    addRemoveMeet,
+    meet_date,
+    meet_location,
+    meet_name,
     sexOptions: ["male", "female"],
     teamOptions: [1],
+    addRemoveOptions: ["Add", "Remove"]
   });
 });

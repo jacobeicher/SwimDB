@@ -21,25 +21,35 @@
     <a href="/results">Results</a>
     <a class="active" href="/edit">Edit</a>
   </div>
+  <br>
 
-  <p>Add Athlete</p>
   <form action="/edit" method="get">
+    <select name="addRemoveAthlete" id="add-remove-select-athlete">
+      <% for (const option of addRemoveOptions) { %>
+        <option value="<%=option%>" <%=option===addRemoveAthlete ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <% } %>
+    </select>
+    Athlete:
+    <br>
     <label for="swimmer-select">Enter swimmer name:</label>
-    <input type="text" name="fswimmer" id="swimmer-Fname-select" value="<%=fswimmer%>" />
-    <input type="text" name="lswimmer" id="swimmer-Lname-select" value="<%=lswimmer%>" />
+    <input type="text" name="fswimmer_athlete" id="swimmer-Fname-athlete-select" value="<%=fswimmer_athlete%>" />
+    <input type="text" name="lswimmer_athlete" id="swimmer-Lname-athlete-select" value="<%=lswimmer_athlete%>" />
     <label for="sex-select">Select Sex:</label>
-    <select name="sex" id="sex-select">
+    <select name="sex_athlete" id="sex-select-athlete">
       <% for (const option of sexOptions) { %>
-        <option value="<%=option%>" <%=option===sex ? 'selected="selected"' : "" %>
+        <option value="<%=option%>" <%=option===sex_athlete ? 'selected="selected"' : "" %>
           >
           <%=option%>
         </option>
         <%}%>
     </select>
-    <label for="team-select">Select Team:</label>
-    <select name="team" id="team-select">
+    <label for="team-select-athlete">Select Team:</label>
+    <select name="team_athlete" id="team-select-athlete">
       <% for (const option of teamOptions) { %>
-        <option value="<%=option%>" <%=option===team ? 'selected="selected"' : "" %>
+        <option value="<%=option%>" <%=option===team_athlete ? 'selected="selected"' : "" %>
           >
           <%=option%>
         </option>
@@ -47,11 +57,40 @@
     </select>
 
 
-    <label for="age-select">Select Age:</label>
-    <input type="text" name="age" id="age-select" value="<%=age%>" />
-    <button type="submit">Submit!</button>
+    <label for="age-select-athlete">Select Age:</label>
+    <input type="text" name="age_athlete" id="age-select-athlete" value="<%=age_athlete%>" />
 
-    <script src="swimDB.css"></script>
+    <button type="submit">Submit!</button>
+  </form>
+  <br>
+  <br>
+
+  <form action="/edit" method="get">
+    <select name="addRemoveMeet" id="add-remove-select-meet">
+      <% for (const option of addRemoveOptions) { %>
+        <option value="<%=option%>" <%=option===addRemoveMeet ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <% } %>
+    </select>
+    Meet:
+    <br>
+    <label for="meet-name-select">Meet Name:</label>
+    <input type="text" name="meet_name" id="meet-name-select" value="<%=meet_name%>" />
+
+    <label for="meet-location-select">Meet Location:</label>
+    <input type="text" name="meet_location" id="meet-location-select" value="<%=meet_location%>" />
+
+    <label for="meet-date-select">Meet Date:</label>
+    <input type="date" name="meet_date" id=" meet-date-select" value="<%=meet_date%>" />
+
+
+    <button type="submit">Submit!</button>
+    <a href="/edit">Reset!</a>
+  </form>
+
+  <script src="swimDB.css"></script>
 </body>
 
 </html>
