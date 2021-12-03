@@ -87,7 +87,122 @@
 
 
     <button type="submit">Submit!</button>
-    <a href="/edit">Reset!</a>
+  </form>
+  <br>
+  <br>
+
+
+  <form action="/edit" method="get">
+    <select name="addRemoveEvent" id="add-remove-select-event">
+      <% for (const option of addRemoveOptions) { %>
+        <option value="<%=option%>" <%=option===addRemoveEvent ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <% } %>
+    </select>
+    Event:
+    <br>
+    <label for="event-meet-select">Meet:</label>
+    <input type="text" name="event_meet" id="event-meet-select" value="<%=event_meet%>" />
+
+    <label for="event-number-select">Event Number:</label>
+    <input type="text" name="event_number" id="event-number-select" value="<%=event_number%>" />
+
+    <label for="event-distance-select">Distance:</label>
+    <input type="text" name="event_distance" id=" event-distance-select" value="<%=event_distance%>" />
+
+    <label for="event-course-select">Course:</label>
+    <input type="text" name="event_course" id=" event-course-select" value="<%=event_course%>" />
+
+    <label for="sex-select-event">Sex:</label>
+    <select name="sex_event" id="sex-select-event">
+      <% for (const option of sexOptions) { %>
+        <option value="<%=option%>" <%=option===sex_event ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <%}%>
+    </select>
+
+    <label for="event-stroke-select">Stroke:</label>
+    <input type="text" name="event_stroke" id=" event-stroke-select" value="<%=event_stroke%>" />
+
+    <label for="team-select-event">Team:</label>
+    <select name="team_athlete" id="team-select-event">
+      <% for (const option of teamOptions) { %>
+        <option value="<%=option%>" <%=option===event_team ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <% } %>
+    </select>
+
+    <label for="relay-select-event">Relay:</label>
+    <select name="event_relay," id="relay-select-event">
+      <% for (const option of relayOptions) { %>
+        <option value="<%=option%>" <%=option===event_relay ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <%}%>
+    </select>
+
+    <button type="submit">Submit!</button>
+  </form>
+
+  <br>
+  <br>
+
+  <form action="/edit" method="get">
+    <select name="addRemoveResult" id="add-remove-select-Result">
+      <% for (const option of addRemoveOptions) { %>
+        <option value="<%=option%>" <%=option===addRemoveResult ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <% } %>
+    </select>
+    Result:
+    <br>
+    <label for="result-athlete-select">Athlete:</label>
+    <input type="text" name="result_athlete" id="result-athlete-select" value="<%=result_athlete%>" />
+
+    <label for="result-event-select">Event:</label>
+    <input type="text" name="result_event" id="result-event-select" value="<%=result_event%>" />
+
+    <label for=result-time-select">Time:</label>
+    <input type="text" name="result_time" id="result-time-select" value="<%=result_time%>" />
+
+    <label for=result-place-select">Place:</label>
+    <input type="text" name="result_place" id="result-place-select" value="<%=result_place%>" />
+
+
+    <button type="submit">Submit!</button>
+  </form>
+
+
+  <br>
+  <br>
+
+  <form action="/edit" method="get">
+    <select name="addRemoveTeam" id="add-remove-select-team">
+      <% for (const option of addRemoveOptions) { %>
+        <option value="<%=option%>" <%=option===addRemoveTeam ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <% } %>
+    </select>
+    Team:
+    <br>
+    <label for="team_name-select">Team Name:</label>
+    <input type="text" name="team_name" id="team_name-select" value="<%=team_name%>" />
+
+    <label for="team_code-select">Team Code:</label>
+    <input type="text" name="team_code" id="team_code-select" value="<%=team_code%>" />
+
+    <button type="submit">Submit!</button>
   </form>
 
   <script src="swimDB.css"></script>

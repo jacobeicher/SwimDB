@@ -48,3 +48,10 @@ input {
   padding: 5px;
   margin: 5px;
 }
+form {
+  background-color: lightgreen;
+}
+
+/* select {
+  background-color: lightskyblue;
+} */
