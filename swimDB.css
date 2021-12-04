@@ -44,21 +44,35 @@ tr {
 /*END table*/
 
 input {
-  background-color: lightskyblue;
+  background-color: #b5e3d8;
   padding: 5px;
   margin: 5px;
 }
 form {
-  background-color: lightgreen;
+  background-color: rgb(144,238,144,.5);
+  
 }
+
+.add-remove-select{
+  background-color: darkgrey;
+  
+  border: 2px solid black;
+
+}
+
+button[type='submit']{
+  background-color: rgb(53, 167, 4);
+  border: 2px solid black;
+  color:white;
+}
+
+
 #result-time-select{
   min-width: 40px;  
 }
 
 
-.add-remove-select{
-  background-color: orange;
-}
+
 /* select {
   background-color: lightskyblue;
 } */
