@@ -44,14 +44,21 @@ tr {
 /*END table*/
 
 input {
-  background-color: #999;
+  background-color: lightskyblue;
   padding: 5px;
   margin: 5px;
 }
 form {
   background-color: lightgreen;
 }
+#result-time-select{
+  min-width: 40px;  
+}
 
+
+.add-remove-select{
+  background-color: orange;
+}
 /* select {
   background-color: lightskyblue;
 } */

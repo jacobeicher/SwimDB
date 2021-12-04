@@ -24,7 +24,7 @@
   <br>
 
   <form action="/edit" method="get">
-    <select name="addRemoveAthlete" id="add-remove-select-athlete">
+    <select name="addRemoveAthlete" class="add-remove-select" id="add-remove-select-athlete">
       <% for (const option of addRemoveOptions) { %>
         <option value="<%=option%>" <%=option===addRemoveAthlete ? 'selected="selected"' : "" %>
           >
@@ -47,9 +47,9 @@
         <%}%>
     </select>
     <label for="team-select-athlete">Select Team:</label>
-    <select name="team_athlete" id="team-select-athlete">
+    <select name="athlete_team" id="team-select-athlete">
       <% for (const option of teamOptions) { %>
-        <option value="<%=option%>" <%=option===team_athlete ? 'selected="selected"' : "" %>
+        <option value="<%=option%>" <%=option===athlete_team ? 'selected="selected"' : "" %>
           >
           <%=option%>
         </option>
@@ -66,7 +66,7 @@
   <br>
 
   <form action="/edit" method="get">
-    <select name="addRemoveMeet" id="add-remove-select-meet">
+    <select name="addRemoveMeet" class="add-remove-select" id="add-remove-select-meet">
       <% for (const option of addRemoveOptions) { %>
         <option value="<%=option%>" <%=option===addRemoveMeet ? 'selected="selected"' : "" %>
           >
@@ -93,7 +93,7 @@
 
 
   <form action="/edit" method="get">
-    <select name="addRemoveEvent" id="add-remove-select-event">
+    <select name="addRemoveEvent" class="add-remove-select" id="add-remove-select-event">
       <% for (const option of addRemoveOptions) { %>
         <option value="<%=option%>" <%=option===addRemoveEvent ? 'selected="selected"' : "" %>
           >
@@ -104,7 +104,14 @@
     Event:
     <br>
     <label for="event-meet-select">Meet:</label>
-    <input type="text" name="event_meet" id="event-meet-select" value="<%=event_meet%>" />
+    <select name="event_meet" id="event-meet-select">
+      <% for (const option of meetOptions) { %>
+        <option value="<%=option%>" <%=option===event_meet ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <%}%>
+    </select>
 
     <label for="event-number-select">Event Number:</label>
     <input type="text" name="event_number" id="event-number-select" value="<%=event_number%>" />
@@ -113,7 +120,14 @@
     <input type="text" name="event_distance" id=" event-distance-select" value="<%=event_distance%>" />
 
     <label for="event-course-select">Course:</label>
-    <input type="text" name="event_course" id=" event-course-select" value="<%=event_course%>" />
+    <select name="event_course" id="event-course-select">
+      <% for (const option of courseOptions) { %>
+        <option value="<%=option%>" <%=option===event_course ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <%}%>
+    </select>
 
     <label for="sex-select-event">Sex:</label>
     <select name="sex_event" id="sex-select-event">
@@ -126,20 +140,17 @@
     </select>
 
     <label for="event-stroke-select">Stroke:</label>
-    <input type="text" name="event_stroke" id=" event-stroke-select" value="<%=event_stroke%>" />
-
-    <label for="team-select-event">Team:</label>
-    <select name="team_athlete" id="team-select-event">
-      <% for (const option of teamOptions) { %>
-        <option value="<%=option%>" <%=option===event_team ? 'selected="selected"' : "" %>
+    <select name="event_stroke" id="event-stroke-select">
+      <% for (const option of strokeOptions) { %>
+        <option value="<%=option%>" <%=option===event_stroke ? 'selected="selected"' : "" %>
           >
           <%=option%>
         </option>
-        <% } %>
+        <%}%>
     </select>
 
     <label for="relay-select-event">Relay:</label>
-    <select name="event_relay," id="relay-select-event">
+    <select name="event_relay" id="relay-select-event">
       <% for (const option of relayOptions) { %>
         <option value="<%=option%>" <%=option===event_relay ? 'selected="selected"' : "" %>
           >
@@ -155,7 +166,7 @@
   <br>
 
   <form action="/edit" method="get">
-    <select name="addRemoveResult" id="add-remove-select-Result">
+    <select name="addRemoveResult" class="add-remove-select" id="add-remove-select-Result">
       <% for (const option of addRemoveOptions) { %>
         <option value="<%=option%>" <%=option===addRemoveResult ? 'selected="selected"' : "" %>
           >
@@ -165,14 +176,38 @@
     </select>
     Result:
     <br>
-    <label for="result-athlete-select">Athlete:</label>
-    <input type="text" name="result_athlete" id="result-athlete-select" value="<%=result_athlete%>" />
 
-    <label for="result-event-select">Event:</label>
+    <label for="result-athlete-select">Athlete:</label>
+    <select name="result_athlete" id="result-athlete-select">
+      <% for (const option of athleteOptions) { %>
+        <option value="<%=option%>" <%=option===result_athlete ? 'selected="selected"' : "" %>>
+          <%=option%>
+        </option>
+        <%} %>
+    </select>
+
+    <label for="result-meet-select">Meet:</label>
+    <select name="result_meet" id="result-meet-select">
+      <% for (const option of meetOptions) { %>
+        <option value="<%=option%>" <%=option===result_meet ? 'selected="selected"' : "" %>
+          >
+          <%=option%>
+        </option>
+        <%}%>
+    </select>
+
+
+    <label for="result-event-select">Event Number:</label>
     <input type="text" name="result_event" id="result-event-select" value="<%=result_event%>" />
 
-    <label for=result-time-select">Time:</label>
-    <input type="text" name="result_time" id="result-time-select" value="<%=result_time%>" />
+    <label for=result-time-select">Minute:</label>
+    <input type="number" min='0' max='5' name="result_time_min" id="result-time-select" value="<%=result_time_min%>" />
+    <label for=result-time-select">Second:</label>
+    <input type="number" min='0' max='59' name="result_time_sec" id="result-time-select" value="<%=result_time_sec%>" />
+    <label for=result-time-select">Milliseconds:</label>
+    <input type="number" min='0' max='99' name="result_time_milsec" id="result-time-select"
+      value="<%=result_time_milsec%>" />
+
 
     <label for=result-place-select">Place:</label>
     <input type="text" name="result_place" id="result-place-select" value="<%=result_place%>" />
@@ -186,7 +221,7 @@
   <br>
 
   <form action="/edit" method="get">
-    <select name="addRemoveTeam" id="add-remove-select-team">
+    <select name="addRemoveTeam" class="add-remove-select" id="add-remove-select-team">
       <% for (const option of addRemoveOptions) { %>
         <option value="<%=option%>" <%=option===addRemoveTeam ? 'selected="selected"' : "" %>
           >
