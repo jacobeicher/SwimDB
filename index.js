@@ -622,7 +622,7 @@ app.get("/edit", async (req, res) => {
   if (event_stroke !== undefined && event_stroke.trim().length > 0) {
     const val = match(strokes, strokeIDs, event_stroke);
     console.log(val);
-    eventValues.push(`stroke='${val}'`)
+    eventValues.push(`stroke='${val}'`);
     eventParams.push("'" + val + "'");
   }
 
@@ -638,7 +638,6 @@ app.get("/edit", async (req, res) => {
       eventParams.push(`'F'`);
     }
   }
-  console.log(eventParams.join(" "));
   if (addRemoveEvent === 'Add' && eventParams.length == 7) {
     const { rows } = await client.query(
       `INSERT INTO EVENT (meet, event_number, distance, course, sex, stroke, relay) VALUES (${eventParams.join(", ")}) RETURNING *;`
@@ -650,19 +649,19 @@ app.get("/edit", async (req, res) => {
   else if (addRemoveEvent === "Remove" && eventValues.length > 0) {
     const { rows } = await client.query(`DELETE FROM EVENT WHERE (${eventValues.join(" AND ")});`);
     if (rows) {
-      res.redirect(`/event`)
+      res.redirect(`/event`);
     }
   }
 
 
   //----------------------------------------
   if (team_name !== undefined && team_name.trim().length > 0) {
-    teamValues.push(`team_name='${team_name}'`)
+    teamValues.push(`team_name='${team_name}'`);
     teamParams.push("'" + team_name.toLowerCase() + "'");
   }
 
   if (team_code !== undefined && team_code.trim().length > 0) {
-    teamValues.push(`team_code='${team_code}'`)
+    teamValues.push(`team_code='${team_code}'`);
     teamParams.push("'" + team_code.toLowerCase() + "'");
   }
 
@@ -687,13 +686,13 @@ app.get("/edit", async (req, res) => {
   if (result_athlete !== undefined && result_athlete.trim().length > 0) {
 
     const val = match(athletes, athletesIDs, result_athlete);
-    resultValues.push(`athlete='${val}'`)
+    resultValues.push(`athlete='${val}'`);
     resultParams.push("'" + val + "'");
   }
 
   eventIDs.forEach(x => {
     if (x["event_number"] === parseInt(result_event, 10) && x["meet"] === match(meets, meetIDs, result_meet)) {
-      resultValues.push(`event_id='${x['event_id']}'`)
+      resultValues.push(`event_id='${x['event_id']}'`);
       resultParams.push("'" + x["event_id"] + "'");
     }
   })
@@ -703,23 +702,18 @@ app.get("/edit", async (req, res) => {
       if (result_time_milsec !== undefined && result_time_milsec.trim().length > 0 && !isNaN(result_time_milsec)) {
 
         let time = parseInt(result_time_min) * 60;
-        console.log(time);
-
         time = (parseInt(time) + parseInt(result_time_sec)) * 100;
-        console.log(time);
-
         time += parseInt(result_time_milsec);
 
-        console.log(time);
 
-        resultValues.push(`time='${time}'`)
+        resultValues.push(`time='${time}'`);
         resultParams.push("'" + time + "'");
       }
     }
   }
 
   if (result_place !== undefined && result_place.trim().length > 0) {
-    resultValues.push(`place='${result_place}'`)
+    resultValues.push(`place='${result_place}'`);
     resultParams.push("'" + result_place + "'");
   }
 
@@ -735,7 +729,7 @@ app.get("/edit", async (req, res) => {
 
     const { rows } = await client.query(`DELETE FROM RESULTS WHERE(${resultValues.join(" AND ")}); `);
     if (rows) {
-      res.redirect(`/results`)
+      res.redirect(`/results`);
     }
   }
 
