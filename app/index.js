@@ -237,6 +237,7 @@ app.get("/results", async (req, res) => {
     stroke_name,
     place,
     time,
+    meet_name,
     sort,
     sort_direction,
   } = req.query;
@@ -305,6 +306,11 @@ app.get("/results", async (req, res) => {
     if (relay === "No") {
       whereClauses.push(`relay='F'`);
     }
+  }
+
+  if (meet_name !== undefined && meet_name.trim().length > 0) {
+    whereClauses.push(`LOWER(meet_name) LIKE '%' || $${param++} || '%' `);
+    params.push(meet_name.toLowerCase());
   }
 
   if (sort !== undefined) {
@@ -382,6 +388,7 @@ app.get("/results", async (req, res) => {
     place,
     time,
     sort,
+    meet_name,
     sort_direction,
     relayOptions: ["any", "Yes", "No"],
     sexOptions: ["any", "male", "female"],
