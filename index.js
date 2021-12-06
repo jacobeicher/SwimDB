@@ -320,6 +320,8 @@ app.get("/results", async (req, res) => {
       sortBy = "time";
     } else if (sort === "Place") {
       sortBy = "place";
+    } else if (sort === "Meet") {
+      sortBy = "meet_id";
     } else if (sort === "") {
       sortBy = "";
     }
@@ -386,7 +388,7 @@ app.get("/results", async (req, res) => {
     relayOptions: ["any", "Yes", "No"],
     sexOptions: ["any", "male", "female"],
     overUnderOptions: ["=", "<", "<=", ">", ">="],
-    sortOptions: ["Event Number", "Distance", "Stroke", "Time", "Place"],
+    sortOptions: ["Event Number", "Distance", "Stroke", "Time", "Place", "Meet"],
     sortDirectionOptions: ["Ascending", "Descending"],
   });
 });
@@ -766,7 +768,7 @@ app.get("/edit", async (req, res) => {
     sexOptions: ["male", "female"],
     teamOptions: teams,
     addRemoveOptions: ["Add", "Remove"],
-    relayOptions: ["Yes", "No"],
+    relayOptions: ["No", "Yes"],
     athleteOptions: athletes,
     meetOptions: meets,
     strokeOptions: strokes,
