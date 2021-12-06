@@ -3,14 +3,13 @@ const pg = require("pg");
 const app = express();
 const port = 3000;
 
-
 app.use(express.static(__dirname));
 
 const client = new pg.Client({
   user: "swim_admin",
   host: "swim-database.cu0wrflv9nhw.us-east-1.rds.amazonaws.com",
   database: "postgres",
-  password: "givemeanachad",
+  password: process.env.dbpass,
   port: "5432",
 });
 
@@ -69,7 +68,7 @@ app.get("/", async (req, res) => {
       params.push(age);
     }
   }
-  whereClauses.push('ATHLETES.team=TEAM.team_id');
+  whereClauses.push("ATHLETES.team=TEAM.team_id");
   const { rows } = await client.query(
     `
     SELECT first_name, last_name, sex, age, team_code FROM ATHLETES, TEAM
@@ -119,7 +118,6 @@ app.get("/meets", async (req, res) => {
     whereClauses.push(`meet_date=$${param++}`);
     params.push(meet_date);
   }
-
 
   const { rows } = await client.query(
     `
@@ -397,19 +395,42 @@ app.get("/results", async (req, res) => {
 
 function match(name, code, val) {
   for (x = 0; x < name.length; x++) {
-    if (name[x] === val)
-      return code[x];
+    if (name[x] === val) return code[x];
   }
 }
 
-
-
 app.get("/edit", async (req, res) => {
-
-  const { fswimmer_athlete, lswimmer_athlete, sex_athlete, age_athlete, athlete_team, addRemoveAthlete,
-    addRemoveMeet, addRemoveTeam, addRemoveResult, addRemoveEvent, team_name, team_code, meet_date,
-    meet_location, meet_name, result_athlete, result_event, result_time_min, result_time_sec, result_time_milsec, result_place, event_meet,
-    event_number, event_distance, event_course, sex_event, event_stroke, event_relay, result_meet } = req.query;
+  const {
+    fswimmer_athlete,
+    lswimmer_athlete,
+    sex_athlete,
+    age_athlete,
+    athlete_team,
+    addRemoveAthlete,
+    addRemoveMeet,
+    addRemoveTeam,
+    addRemoveResult,
+    addRemoveEvent,
+    team_name,
+    team_code,
+    meet_date,
+    meet_location,
+    meet_name,
+    result_athlete,
+    result_event,
+    result_time_min,
+    result_time_sec,
+    result_time_milsec,
+    result_place,
+    event_meet,
+    event_number,
+    event_distance,
+    event_course,
+    sex_event,
+    event_stroke,
+    event_relay,
+    result_meet,
+  } = req.query;
 
   const athleteValues = [];
   const athleteParams = [];
@@ -426,9 +447,8 @@ app.get("/edit", async (req, res) => {
   const eventValues = [];
   const eventParams = [];
 
-
   const athletes = [];
-  const athletesIDs = []
+  const athletesIDs = [];
   const teams = [];
   const teamIDs = [];
   const meets = [];
@@ -443,22 +463,21 @@ app.get("/edit", async (req, res) => {
     if (err) {
       console.log("oops Database Error");
     } else {
-      res.rows.forEach(x => {
-        athletes.push(x['first_name'] + " " + x['last_name']);
-        athletesIDs.push(x['athlete_id']);
-      })
+      res.rows.forEach((x) => {
+        athletes.push(x["first_name"] + " " + x["last_name"]);
+        athletesIDs.push(x["athlete_id"]);
+      });
     }
   });
-
 
   client.query(`SELECT * FROM TEAM;`, (err, res) => {
     if (err) {
       console.log("oops Database Error");
     } else {
-      res.rows.forEach(x => {
-        teams.push(x['team_name']);
-        teamIDs.push(x['team_id']);
-      })
+      res.rows.forEach((x) => {
+        teams.push(x["team_name"]);
+        teamIDs.push(x["team_id"]);
+      });
     }
   });
 
@@ -466,10 +485,10 @@ app.get("/edit", async (req, res) => {
     if (err) {
       console.log("oops Database Error");
     } else {
-      res.rows.forEach(x => {
-        meets.push(x['meet_name']);
-        meetIDs.push(x['meet_id']);
-      })
+      res.rows.forEach((x) => {
+        meets.push(x["meet_name"]);
+        meetIDs.push(x["meet_id"]);
+      });
     }
   });
 
@@ -477,31 +496,35 @@ app.get("/edit", async (req, res) => {
     if (err) {
       console.log("oops Database Error");
     } else {
-      res.rows.forEach(x => {
-        strokes.push(x['stroke_name']);
-        strokeIDs.push(x['stroke_id']);
-      })
+      res.rows.forEach((x) => {
+        strokes.push(x["stroke_name"]);
+        strokeIDs.push(x["stroke_id"]);
+      });
     }
   });
 
-  client.query(`SELECT event_id, meet, event_number FROM event;`, (err, res) => {
-    if (err) {
-      console.log("oops Database Error");
-    } else {
-      res.rows.forEach(x => {
-        eventIDs.push({ event_id: x['event_id'], event_number: x['event_number'], meet: x['meet'] })
-      })
+  client.query(
+    `SELECT event_id, meet, event_number FROM event;`,
+    (err, res) => {
+      if (err) {
+        console.log("oops Database Error");
+      } else {
+        res.rows.forEach((x) => {
+          eventIDs.push({
+            event_id: x["event_id"],
+            event_number: x["event_number"],
+            meet: x["meet"],
+          });
+        });
+      }
     }
-  });
+  );
 
-
-  const { teams2 } = await client.query(`SELECT * FROM TEAM`); // idk why we cant delete this 
-
+  const { teams2 } = await client.query(`SELECT * FROM TEAM`); // idk why we cant delete this
 
   let resp;
 
   if (athlete_team !== undefined) {
-
     resp = match(teams, teamIDs, athlete_team);
     athleteValues.push(`team=${resp}`);
     athleteParams.push(resp);
@@ -512,12 +535,10 @@ app.get("/edit", async (req, res) => {
     athleteParams.push("'" + fswimmer_athlete + "'");
   }
 
-
   if (lswimmer_athlete !== undefined && lswimmer_athlete.trim().length > 0) {
     athleteValues.push(`last_name='${lswimmer_athlete}'`);
     athleteParams.push("'" + lswimmer_athlete + "'");
   }
-
 
   if (sex_athlete !== undefined) {
     if (sex_athlete === "male") {
@@ -530,23 +551,30 @@ app.get("/edit", async (req, res) => {
     }
   }
 
-
-  if (age_athlete !== undefined && age_athlete.trim().length > 0 && !isNaN(age_athlete)) {
+  if (
+    age_athlete !== undefined &&
+    age_athlete.trim().length > 0 &&
+    !isNaN(age_athlete)
+  ) {
     athleteValues.push(`age=${age_athlete}`);
     athleteParams.push(age_athlete);
   }
 
-
   if (addRemoveAthlete === "Add" && athleteParams.length == 5) {
-
     const { rows } = await client.query(
-      `INSERT INTO ATHLETES (team, first_name, last_name, sex, age) VALUES (${athleteParams.join(", ")}) RETURNING *;`
+      `INSERT INTO ATHLETES (team, first_name, last_name, sex, age) VALUES (${athleteParams.join(
+        ", "
+      )}) RETURNING *;`
     );
     if (rows) {
-      res.redirect(`/?fswimmer=${fswimmer_athlete}&lswimmer=${lswimmer_athlete}&sex=${sex_athlete}`);
+      res.redirect(
+        `/?fswimmer=${fswimmer_athlete}&lswimmer=${lswimmer_athlete}&sex=${sex_athlete}`
+      );
     }
   } else if (addRemoveAthlete === "Remove" && athleteValues.length > 0) {
-    const { rows } = await client.query(`DELETE FROM ATHLETES WHERE (${athleteValues.join(" AND ")});`);
+    const { rows } = await client.query(
+      `DELETE FROM ATHLETES WHERE (${athleteValues.join(" AND ")});`
+    );
     if (rows) {
       res.redirect(`/`);
     }
@@ -555,57 +583,61 @@ app.get("/edit", async (req, res) => {
   //---------------------------------
 
   if (meet_name !== undefined && meet_name.trim().length > 0) {
-    meetValues.push(`meet_name='${meet_name}'`)
+    meetValues.push(`meet_name='${meet_name}'`);
     meetParams.push("'" + meet_name.toLowerCase() + "'");
   }
 
   if (meet_location !== undefined && meet_location.trim().length > 0) {
-    meetValues.push(`meet_location='${meet_location}'`)
+    meetValues.push(`meet_location='${meet_location}'`);
     meetParams.push("'" + meet_location.toLowerCase() + "'");
   }
 
   if (meet_date !== undefined && meet_date.trim().length > 0) {
-    meetValues.push(`meet_date='${meet_date}'`)
+    meetValues.push(`meet_date='${meet_date}'`);
     meetParams.push("'" + meet_date + "'");
   }
 
-  if (addRemoveMeet === 'Add' && meetParams.length == 3) {
+  if (addRemoveMeet === "Add" && meetParams.length == 3) {
     const { rows } = await client.query(
-      `INSERT INTO MEET (meet_name, meet_location, meet_date) VALUES (${meetParams.join(", ")}) RETURNING *;`
+      `INSERT INTO MEET (meet_name, meet_location, meet_date) VALUES (${meetParams.join(
+        ", "
+      )}) RETURNING *;`
     );
     if (rows) {
-      res.redirect(`/meets?meet_name=${meet_name}&meet_location=${meet_location}&meet_date=${meet_date}`);
+      res.redirect(
+        `/meets?meet_name=${meet_name}&meet_location=${meet_location}&meet_date=${meet_date}`
+      );
     }
-  }
-  else if (addRemoveMeet === "Remove" && meetValues.length > 0) {
-    const { rows } = await client.query(`DELETE FROM MEET WHERE (${meetValues.join(" AND ")});`);
+  } else if (addRemoveMeet === "Remove" && meetValues.length > 0) {
+    const { rows } = await client.query(
+      `DELETE FROM MEET WHERE (${meetValues.join(" AND ")});`
+    );
     if (rows) {
-      res.redirect(`/meets`)
+      res.redirect(`/meets`);
     }
   }
   //-------------------------------------------------------
   if (event_meet !== undefined && event_meet.trim().length > 0) {
     const val = match(meets, meetIDs, event_meet);
-    eventValues.push(`meet='${val}'`)
+    eventValues.push(`meet='${val}'`);
     eventParams.push("'" + val + "'");
   }
 
   if (event_number !== undefined && event_number.trim().length > 0) {
-    eventValues.push(`event_number='${event_number}'`)
+    eventValues.push(`event_number='${event_number}'`);
     eventParams.push("'" + event_number.toLowerCase() + "'");
   }
 
   if (event_distance !== undefined && event_distance.trim().length > 0) {
-    eventValues.push(`distance='${event_distance}'`)
+    eventValues.push(`distance='${event_distance}'`);
     eventParams.push("'" + event_distance + "'");
   }
   if (event_course !== undefined && event_course.trim().length > 0) {
     if (event_course === "Yards") {
-      eventValues.push(`course='Y'`)
+      eventValues.push(`course='Y'`);
       eventParams.push("'Y'");
-    }
-    else {
-      eventValues.push(`course='M'`)
+    } else {
+      eventValues.push(`course='M'`);
       eventParams.push("'M'");
     }
   }
@@ -628,9 +660,7 @@ app.get("/edit", async (req, res) => {
     eventParams.push("'" + val + "'");
   }
 
-
   if (event_relay !== undefined) {
-
     if (event_relay === "Yes") {
       eventValues.push(`relay='T'`);
       eventParams.push(`'T'`);
@@ -640,21 +670,29 @@ app.get("/edit", async (req, res) => {
       eventParams.push(`'F'`);
     }
   }
-  if (addRemoveEvent === 'Add' && eventParams.length == 7) {
+  if (addRemoveEvent === "Add" && eventParams.length == 7) {
     const { rows } = await client.query(
-      `INSERT INTO EVENT (meet, event_number, distance, course, sex, stroke, relay) VALUES (${eventParams.join(", ")}) RETURNING *;`
+      `INSERT INTO EVENT (meet, event_number, distance, course, sex, stroke, relay) VALUES (${eventParams.join(
+        ", "
+      )}) RETURNING *;`
     );
     if (rows) {
-      res.redirect(`/event?event_number=${event_number}&distance=${event_distance}&sex=${sex_event}&stroke=${match(strokes, strokeIDs, event_stroke)}&relay=${event_relay}`);
+      res.redirect(
+        `/event?event_number=${event_number}&distance=${event_distance}&sex=${sex_event}&stroke=${match(
+          strokes,
+          strokeIDs,
+          event_stroke
+        )}&relay=${event_relay}`
+      );
     }
-  }
-  else if (addRemoveEvent === "Remove" && eventValues.length > 0) {
-    const { rows } = await client.query(`DELETE FROM EVENT WHERE (${eventValues.join(" AND ")});`);
+  } else if (addRemoveEvent === "Remove" && eventValues.length > 0) {
+    const { rows } = await client.query(
+      `DELETE FROM EVENT WHERE (${eventValues.join(" AND ")});`
+    );
     if (rows) {
       res.redirect(`/event`);
     }
   }
-
 
   //----------------------------------------
   if (team_name !== undefined && team_name.trim().length > 0) {
@@ -667,46 +705,60 @@ app.get("/edit", async (req, res) => {
     teamParams.push("'" + team_code.toLowerCase() + "'");
   }
 
-
-  if (addRemoveTeam === 'Add' && teamParams.length == 2) {
+  if (addRemoveTeam === "Add" && teamParams.length == 2) {
     const { rows } = await client.query(
-      `INSERT INTO TEAM (team_name, team_code) VALUES (${teamParams.join(", ")}) RETURNING *;`
+      `INSERT INTO TEAM (team_name, team_code) VALUES (${teamParams.join(
+        ", "
+      )}) RETURNING *;`
     );
     if (rows) {
       res.redirect(`/`);
     }
-  }
-  else if (addRemoveTeam === "Remove" && teamValues.length > 0) {
-    const { rows } = await client.query(`DELETE FROM TEAM WHERE (${teamValues.join(" AND ")});`);
+  } else if (addRemoveTeam === "Remove" && teamValues.length > 0) {
+    const { rows } = await client.query(
+      `DELETE FROM TEAM WHERE (${teamValues.join(" AND ")});`
+    );
     if (rows) {
-      res.redirect(`/`)
+      res.redirect(`/`);
     }
   }
 
   //---------------------------------------------------------
 
   if (result_athlete !== undefined && result_athlete.trim().length > 0) {
-
     const val = match(athletes, athletesIDs, result_athlete);
     resultValues.push(`athlete='${val}'`);
     resultParams.push("'" + val + "'");
   }
 
-  eventIDs.forEach(x => {
-    if (x["event_number"] === parseInt(result_event, 10) && x["meet"] === match(meets, meetIDs, result_meet)) {
-      resultValues.push(`event_id='${x['event_id']}'`);
+  eventIDs.forEach((x) => {
+    if (
+      x["event_number"] === parseInt(result_event, 10) &&
+      x["meet"] === match(meets, meetIDs, result_meet)
+    ) {
+      resultValues.push(`event_id='${x["event_id"]}'`);
       resultParams.push("'" + x["event_id"] + "'");
     }
-  })
+  });
 
-  if (result_time_min !== undefined && result_time_min.trim().length > 0 && !isNaN(result_time_min)) {
-    if (result_time_sec !== undefined && result_time_sec.trim().length > 0 && !isNaN(result_time_sec)) {
-      if (result_time_milsec !== undefined && result_time_milsec.trim().length > 0 && !isNaN(result_time_milsec)) {
-
+  if (
+    result_time_min !== undefined &&
+    result_time_min.trim().length > 0 &&
+    !isNaN(result_time_min)
+  ) {
+    if (
+      result_time_sec !== undefined &&
+      result_time_sec.trim().length > 0 &&
+      !isNaN(result_time_sec)
+    ) {
+      if (
+        result_time_milsec !== undefined &&
+        result_time_milsec.trim().length > 0 &&
+        !isNaN(result_time_milsec)
+      ) {
         let time = parseInt(result_time_min) * 60;
         time = (parseInt(time) + parseInt(result_time_sec)) * 100;
         time += parseInt(result_time_milsec);
-
 
         resultValues.push(`time='${time}'`);
         resultParams.push("'" + time + "'");
@@ -719,17 +771,19 @@ app.get("/edit", async (req, res) => {
     resultParams.push("'" + result_place + "'");
   }
 
-  if (addRemoveResult === 'Add' && resultParams.length == 4) {
+  if (addRemoveResult === "Add" && resultParams.length == 4) {
     const { rows } = await client.query(
-      `INSERT INTO RESULTS (athlete, event_id, time, place) VALUES(${resultParams.join(", ")}) RETURNING *; `
+      `INSERT INTO RESULTS (athlete, event_id, time, place) VALUES(${resultParams.join(
+        ", "
+      )}) RETURNING *; `
     );
     if (rows) {
       res.redirect(`/results?event_number=${result_event}`);
     }
-  }
-  else if (addRemoveResult === "Remove" && resultValues.length > 0) {
-
-    const { rows } = await client.query(`DELETE FROM RESULTS WHERE(${resultValues.join(" AND ")}); `);
+  } else if (addRemoveResult === "Remove" && resultValues.length > 0) {
+    const { rows } = await client.query(
+      `DELETE FROM RESULTS WHERE(${resultValues.join(" AND ")}); `
+    );
     if (rows) {
       res.redirect(`/results`);
     }
@@ -772,6 +826,6 @@ app.get("/edit", async (req, res) => {
     athleteOptions: athletes,
     meetOptions: meets,
     strokeOptions: strokes,
-    courseOptions: ['Yards', 'Meters']
+    courseOptions: ["Yards", "Meters"],
   });
 });
